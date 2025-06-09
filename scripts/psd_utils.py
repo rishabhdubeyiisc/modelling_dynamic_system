@@ -2,6 +2,7 @@ import os
 import pandas as pd
 import matplotlib.pyplot as plt
 from pathlib import Path
+from typing import List, Dict, Union
 
 REPORT_DIR = Path('report_plot')
 REPORT_DIR.mkdir(exist_ok=True)
@@ -23,4 +24,29 @@ def save_fig(fig, name: str):
     out = REPORT_DIR / name
     fig.savefig(out, dpi=150)
     plt.close(fig)
-    print(f"[plot] Saved {out}") 
+    print(f"[plot] Saved {out}")
+
+# Added helper functions for event timing -------------------------------------
+_EVENTS_PATH = Path('sim') / 'events.csv'
+
+def load_events_csv() -> pd.DataFrame:
+    """Return dataframe of the events log (time,event,detail). If the file does
+    not exist, an empty dataframe is returned to allow graceful fallback.
+    """
+    if not _EVENTS_PATH.exists():
+        # Return empty dataframe with expected columns for downstream safety
+        return pd.DataFrame(columns=['time', 'event', 'detail'])
+    return pd.read_csv(_EVENTS_PATH)
+
+
+def get_event_times(event_name: str) -> List[float]:
+    """Return a list of times (as float seconds) where *event_name* occurred.
+    If the events file is missing or the specific event is not present, an
+    empty list is returned. This allows analysis scripts to fall back to their
+    heuristic detection methods seamlessly.
+    """
+    df_evt = load_events_csv()
+    if df_evt.empty:
+        return []
+    times = df_evt.loc[df_evt['event'] == event_name, 'time'].astype(float).tolist()
+    return times 

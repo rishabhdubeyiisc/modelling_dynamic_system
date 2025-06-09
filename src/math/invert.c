@@ -1,22 +1,12 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-
-// HEADER FILES OF GSL
-#include    <gsl/gsl_complex.h>
-#include    <gsl/gsl_complex_math.h> 
-// HEADER FILES I CREATED
-
-#include "read_header.h"
-#include "data_types.h"
+#include "../../include/common/common.h"
 /* */
-int inv_mat(double **,unsigned int,double **);
+int invertMatrix(double **,unsigned int,double **);
 
 void gauss_jordan(double **, unsigned int  ,unsigned int );
 
 int swap_rows(unsigned int , double **, unsigned int ,unsigned int );
 
-int inv_mat(double **inp_MAT,unsigned int order,double **op_MAT)
+int invertMatrix(double **inp_MAT,unsigned int order,double **op_MAT)
 {
        unsigned int   i,j,k,m,n,result=0,iRow;
        double **A;

@@ -19,10 +19,10 @@ A comprehensive C-based simulation tool for analyzing power system dynamics usin
 ## 🛠️ **Quick Start - 4-Step Workflow**
 
 ```bash
-make clean      # Clean build artifacts
-make            # Compile executable  
-make test       # Run simulation → generates sim/gen*.csv
-make analysis   # Complete analysis suite (all scripts)
+make clean          # Remove obj/, sim/, report_plot/
+make build          # Compile executable (object files in obj/)
+make test           # Run simulation → generates sim/gen*.csv
+make analysis       # Complete analysis suite (all scripts)
 ```
 
 ### **Additional Commands**
@@ -73,11 +73,13 @@ report_plot/
 - **Load modeling** with constant power characteristics
 
 ### **Analysis Capabilities**
+- **Event-Aware Analysis**: Direct integration with simulation event log (`events.csv`)
 - **Stability Analysis**: Pre/post-fault period analysis with oscillation detection
 - **Voltage Recovery Assessment**: Success/failure classification with recovery metrics
 - **Signal Path Tracing**: EMF cascade analysis (Efd → Eq' → Ed' → Eq'' → Ed'' → Vt)
 - **High-Precision Plotting**: Publication-quality figures (300 DPI)
 - **Multi-variable Analysis**: Synchronized time series with zoom capabilities
+- **Smart Event Detection**: Precise timing vs heuristic fallbacks for robustness
 
 ---
 
@@ -115,25 +117,23 @@ X->Eq_das += 0.5 * dt * (f0.dEq1 + f1.dEq1);  // Corrector step
 
 ### **Project Structure**
 ```
-├── main.c                          # Main simulation driver
-├── partitioned_solver_sm.c         # Streamlined solver implementation  
-├── func2.c                         # Legacy solver (backup/reference)
-├── functions.c                     # Generator initialization and Y-bus formation
-├── read_fn.c                       # Data input and parsing routines
-├── invert.c                        # Matrix inversion using Gauss-Jordan elimination
-├── data_types.h                    # Data structures and type definitions
-├── read_header.h                   # Function declarations and constants
-├── System_Data/                    # Data files directory
-│   ├── system_data.txt             # System parameters and network data
-│   └── Y_BUS.txt                   # Pre-computed admittance matrix
-├── Makefile                        # Clean 4-step workflow
-└── scripts/                        # Comprehensive analysis suite
-    ├── stability_fault_analysis.py # Complete stability analysis
-    ├── plot_analysis.py            # 8-panel plotting suite
-    ├── high_precision_plot.py      # Publication-quality plots
-    ├── emf_trace.py                # EMF variable analysis
-    ├── vref_analysis.py            # Voltage regulation analysis
-    └── trace_signal_path.py        # Signal path diagnostics
+├── src/
+│   ├── core/              # main.c, simulator.c, fault_config.c …
+│   ├── generators/        # gen_init.c, current_calc.c, power_calc.c
+│   ├── network/           # y_bus_utils.c, fault_matrix.c, network_solver.c
+│   ├── io/                # read_fn.c, user_input.c
+│   └── math/              # invert.c
+├── include/
+│   ├── api/               # power_system.h, *_fwd.h, etc.
+│   ├── common/            # common.h, data_types.h, types_fwd.h
+│   └── [module headers]/  # core/, generators/, network/, io/
+├── obj/                   # ⚙️  all *.o build artefacts (auto-created)
+├── data/                  # system_data.txt, Y_BUS.txt
+├── docs/                  # documentation & design notes
+├── scripts/               # Python analysis toolkit
+├── tests/                 # Unit / regression tests
+├── Makefile               # Modern build system
+└── README.md
 ```
 
 ---
@@ -150,7 +150,6 @@ X->Eq_das += 0.5 * dt * (f0.dEq1 + f1.dEq1);  // Corrector step
 # Ubuntu/Debian
 sudo apt update && sudo apt install -y \
     libgsl-dev \
-    libsuitesparse-dev \
     gcc make \
     python3 python3-pip
 
@@ -161,11 +160,16 @@ pip3 install matplotlib pandas numpy scipy
 ### **Other Linux Distributions**
 ```bash
 # CentOS/RHEL/Fedora
-sudo yum install -y gsl-devel SuiteSparse-devel gcc make
-# or: sudo dnf install -y gsl-devel SuiteSparse-devel gcc make
+sudo yum install -y gsl-devel gcc make
+# or: sudo dnf install -y gsl-devel gcc make
 
 # Arch Linux
-sudo pacman -S gsl suitesparse gcc make python python-matplotlib python-pandas
+sudo pacman -S gsl gcc make python python-matplotlib python-pandas
+```
+
+### **Additional Dependencies**
+```bash
+# No additional packages required – only GSL is needed at link time
 ```
 
 ---
@@ -276,11 +280,37 @@ if (fault_enabled && t>=fault_start && t<fault_end) {
 ```
 Changing to admittance form is also possible but requires a deeper refactor.
 
+### 2025-06-09 Modernisation & Stability Debug Session
+
+1. **API Modernisation** – completed full renaming of all legacy structs / functions.
+2. **Dependency cleanup** – forward-declaration headers, smaller include graph.
+3. **Build hygiene** – object files redirected to `obj/`, examples removed, doc updated.
+4. **Dynamic steady-state overhaul**
+   * Added physics-based initial-condition solver (gen_init.c) so all differential
+     equations are zero at t = 0.
+   * Network consistency pass + torque balance in simulator.
+   * Governor integrator is reset once (not a hack – simply removes numerical
+     bias after the equilibrium pass).
+   * Mechanical damping now set to a realistic constant `D_by_M = 0.5`.
+5. **Event Logging System** ✨ **NEW**
+   * Automatic generation of `sim/events.csv` with precise event timing
+   * Event-aware analysis scripts with fallback to heuristic detection
+   * Enhanced analysis reliability and consistency across all tools
+6. **Remaining simplifications** (safe for production, documented here)
+
+| File / line | Simplification | Rationale |
+|-------------|---------------|-----------|
+| `simulator.c` (line ≈120) | `xi[g] = 0` after consistency pass | Clears tiny numerical bias; governor still active when real disturbances occur. |
+| `simulator.c` (line ≈100) | `D_by_M = 0.5` (constant) | Provides nominal damping; tune as needed per machine. |
+| `simulator.c` (line ≈270) | Governor gains `R_GOV = 0.003`, `KI_GOV = 8`, `TGOV = 0.05 s` | Chosen for fast primary-frequency response in demos. |
+
+No other shortcuts or hidden hacks remain. All physics blocks (AVR, governor, flux dynamics, network solver) now run from an exact load-flow equilibrium and respond only to explicit disturbances (faults, Vref/Pm steps).
+
 ---
 
 ## 📋 **Input Data Format**
 
-The simulator reads system data from `System_Data/system_data.txt`:
+The simulator reads system data from `data/system_data.txt`:
 
 1. **System constants**: Number of generators, buses, transmission lines
 2. **Generator parameters**: Inertia (H), reactances (Xd, Xq, Xd', etc.), time constants
@@ -404,18 +434,63 @@ All dependencies use compatible open-source licenses:
 
 ---
 
-## 📧 **Contact & Support**
+## 📧 **Contact**
 
 **Researcher**: Rishabh Dubey  
 **Institution**: Indian Institute of Science (IISC)  
 **Project**: Power System Dynamics Simulation - DAE-based Multi-machine Analysis  
-**Domain**: Power Systems Dynamics & Numerical Simulation  
+**Target**: Power Systems Dynamics & Numerical Simulation  
 
-For technical questions, collaboration requests, or licensing inquiries, please reach out to discuss proper usage and attribution.
+For detailed implementation information, refer to the comprehensive documentation in this README and extensive source code comments. The analysis scripts provide detailed insights into system behavior and performance metrics.
 
 ---
 
 **🎯 Project Status**: **PRODUCTION READY** - All major bugs resolved, comprehensive analysis suite implemented, ready for advanced power system studies and future enhancements.
 
+## Simulation Event Log & Smart Analysis Integration
+
+After each simulation run, the solver automatically writes `sim/events.csv` — a comprehensive timeline of all discrete events that occur during the simulation. This structured log enables precise, reproducible analysis and eliminates dependency on console output parsing.
+
+### **Event Log Format**
+```
+time,event,detail
+200.000000,vref_step,+0.5000
+200.000000,pm_step,+0.5000
+300.000000,fault_start,
+320.000000,fault_end,
+```
+
+### **Event Types & Descriptions**
+* **fault_start / fault_end** — Exact time-steps when fault window begins/ends
+* **vref_step** — AVR reference voltage change with magnitude (pu)
+* **pm_step** — Mechanical power step change with magnitude (pu)
+
+### **Smart Analysis Script Integration** ✨ **NEW**
+All analysis scripts now **automatically prioritize** explicit event times from `events.csv` before falling back to heuristic detection:
+
+**Updated Scripts:**
+- `plot_analysis.py` — Fault period detection from events.csv
+- `stability_fault_analysis.py` — Precise fault timing for recovery analysis  
+- `pm_step_analysis.py` — Direct pm_step event detection
+- `vref_step_analysis.py` — Direct vref_step event detection
+- `fault_analysis.py` — Event-driven fault timing analysis
+
+**Benefits:**
+- **Precision**: Exact event timing (no approximation errors)
+- **Reliability**: Eliminates heuristic detection failures
+- **Performance**: Instant event lookup vs signal processing
+- **Consistency**: All scripts use identical event timing
+- **Robustness**: Graceful fallback if events.csv missing
+
+## Governor Mechanical-Power Limits
+
+The simple governor model includes a hard clamp on mechanical power:
+
+```c
+if (Pm > 1.5) Pm = 1.5;   /* upper ceiling */
+if (Pm < 0.0) Pm = 0.0;   /* floor        */
+```
+
+The interactive prompt now prints this range so you can choose a \(\Delta P_m\) that produces a lasting step rather than a clipped spike.  If you need more headroom, edit `PM_MAX` near the top of `src/core/simulator.c`.
 
 Run simulation : bash -c "echo -e '1 0 0\n0\ny\nt\n2 0.2\n2\n' | ./test | cat"

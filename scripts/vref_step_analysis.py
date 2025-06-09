@@ -1,6 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-from psd_utils import load_generator_csv, nice_axes, save_fig
+from psd_utils import load_generator_csv, nice_axes, save_fig, get_event_times
 from pathlib import Path
 
 
@@ -8,11 +8,18 @@ def main():
     df = load_generator_csv(0)
     time = df['time']
 
-    # detect Vref step (first non-zero diff)
     vref = df['Vref']
-    dv = vref.diff().abs()
-    step_idx = dv.idxmax() if dv.max() > 1e-4 else 0
-    step_time = time.iloc[step_idx]
+
+    # Prefer explicit event log if present
+    evt_times = get_event_times('vref_step')
+    if evt_times:
+        step_time = evt_times[0]
+        step_idx = (df['time'] - step_time).abs().idxmin()
+    else:
+        # detect Vref step (first non-zero diff)
+        dv = vref.diff().abs()
+        step_idx = dv.idxmax() if dv.max() > 1e-4 else 0
+        step_time = time.iloc[step_idx]
 
     fig, ax = plt.subplots(4, 1, figsize=(8, 10), sharex=True)
 

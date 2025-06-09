@@ -80,9 +80,31 @@ def _read_fault_parameters_from_main():
     
     return fault_cycles, clear_disturbances
 
+# New: Event log helpers
+from psd_utils import get_event_times
+
+# ------------------------------------------------------------------
+# Fault timing detection now prefers explicit entries from sim/events.csv.
+# If the events log is missing or incomplete, we gracefully fall back to the
+# previous heuristic/data-driven approach.
+# ------------------------------------------------------------------
+
 def _detect_fault_timing_from_data(df, time):
-    """Detect actual fault timing from simulation data by finding voltage drops."""
-    # First try code-based calculation (more reliable)
+    """Return (fault_start, fault_end) times.
+
+    Priority order:
+    1. Use explicit times from sim/events.csv (fast & reliable).
+    2. Fallback to heuristic voltage-drop detection around code-scheduled
+       timings (legacy behaviour).
+    """
+
+    # 1) Try direct event log first
+    evt_start = get_event_times('fault_start')
+    evt_end   = get_event_times('fault_end')
+    if evt_start and evt_end:
+        return evt_start[0], evt_end[0]
+    
+    # 2) Fallback to heuristic voltage-drop detection around code-scheduled timings
     fault_cycles, clear_disturbances = _read_fault_parameters_from_main()
     code_fault_start = 2 * clear_disturbances
     code_fault_end = code_fault_start + (fault_cycles / 60.0)
@@ -122,7 +144,7 @@ def _detect_fault_timing_from_data(df, time):
                 fault_end_time = time[fault_end_idx]
                 return fault_start_time, fault_end_time
     
-    # Fallback: use code-based calculation (most reliable)
+    # 3) Final fallback: use code-based calculation
     return code_fault_start, code_fault_end
 
 def plot_all_variables():

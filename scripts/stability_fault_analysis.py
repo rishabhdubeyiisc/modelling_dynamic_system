@@ -9,6 +9,9 @@ import numpy as np
 import re
 from scipy import signal
 
+# Event log helpers
+from psd_utils import get_event_times
+
 def _read_fault_parameters_from_main():
     """Parse main.c to obtain fault parameters; return defaults if not found."""
     fault_cycles = 8.0  # Default
@@ -39,7 +42,14 @@ def _read_fault_parameters_from_main():
     return fault_cycles, clear_disturbances
 
 def _detect_fault_timing_from_data(df, time):
-    """Detect actual fault timing from simulation data by finding voltage drops."""
+    """Return (fault_start, fault_end) times using events log when available."""
+
+    # 1) Directly read from events.csv if available
+    evt_start = get_event_times('fault_start')
+    evt_end   = get_event_times('fault_end')
+    if evt_start and evt_end:
+        return evt_start[0], evt_end[0]
+
     # First try code-based calculation (more reliable)
     fault_cycles, clear_disturbances = _read_fault_parameters_from_main()
     code_fault_start = 2 * clear_disturbances
@@ -80,8 +90,8 @@ def _detect_fault_timing_from_data(df, time):
                 fault_end_time = time[fault_end_idx]
                 return fault_start_time, fault_end_time
     
-    # Fallback: use code-based calculation (most reliable)
-    print(f"⚠️  Using code-based fault timing (data detection failed)")
+    # Final fallback
+    print("⚠️  Using code-based fault timing (events log & data detection failed)")
     return code_fault_start, code_fault_end
 
 def _detect_reference_voltage(df):

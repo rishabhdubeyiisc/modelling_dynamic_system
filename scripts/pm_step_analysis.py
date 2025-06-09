@@ -1,15 +1,22 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 from pathlib import Path
-from psd_utils import load_generator_csv, save_fig, nice_axes
+from psd_utils import load_generator_csv, save_fig, nice_axes, get_event_times
 
 def main():
     df = load_generator_csv(0)
     time = df['time']
     pm = df['mech_power']
-    dpm = pm.diff().abs()
-    step_idx = dpm.idxmax() if dpm.max() > 1e-4 else 0
-    step_time = time.iloc[step_idx]
+    # Prefer explicit event log when available
+    evt_times = get_event_times('pm_step')
+    if evt_times:
+        step_time = evt_times[0]
+        # find closest index for annotation
+        step_idx = (df['time'] - step_time).abs().idxmin()
+    else:
+        dpm = pm.diff().abs()
+        step_idx = dpm.idxmax() if dpm.max() > 1e-4 else 0
+        step_time = time.iloc[step_idx]
 
     fig, ax = plt.subplots(3,1, figsize=(8,8), sharex=True)
     ax[0].plot(time, pm, label='Pm', color='tab:blue'); ax[0].axvline(step_time, ls='--'); ax[0].set_ylabel('Pm (pu)'); nice_axes(ax[0])

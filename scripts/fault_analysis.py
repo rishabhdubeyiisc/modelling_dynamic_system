@@ -1,19 +1,29 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 from pathlib import Path
-from psd_utils import load_generator_csv, save_fig, nice_axes
+from psd_utils import load_generator_csv, save_fig, nice_axes, get_event_times
 
 def main():
     df = load_generator_csv(0)
     time = df['time']
-    # basic heuristic: big drop in VQ indicates fault start
     vq = df['VQ'] if 'VQ' in df else df['vq']
-    dvq = vq.diff()
-    start_idx = dvq.idxmin()
-    start_time = time.iloc[start_idx]
-    # fault clear when dvq largest positive after start
-    clear_idx = dvq[start_idx+1:].idxmax()
-    clear_time = time.iloc[clear_idx]
+    # Prefer explicit fault timing from events.csv
+    evt_start = get_event_times('fault_start')
+    evt_end   = get_event_times('fault_end')
+
+    if evt_start and evt_end:
+        start_time = evt_start[0]
+        clear_time = evt_end[0]
+        start_idx = (df['time'] - start_time).abs().idxmin()
+        clear_idx = (df['time'] - clear_time).abs().idxmin()
+    else:
+        # fallback heuristic: big drop in VQ indicates fault start
+        dvq = vq.diff()
+        start_idx = dvq.idxmin()
+        start_time = time.iloc[start_idx]
+        # fault clear when dvq largest positive after start
+        clear_idx = dvq[start_idx+1:].idxmax()
+        clear_time = time.iloc[clear_idx]
 
     fig, ax = plt.subplots(2,1, figsize=(8,6), sharex=True)
     ax[0].plot(time, vq, label='VQ'); ax[0].axvline(start_time, ls='--', color='r'); ax[0].axvline(clear_time, ls='--', color='g'); ax[0].set_ylabel('VQ (pu)'); nice_axes(ax[0])
