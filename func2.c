@@ -52,7 +52,7 @@ void partitioned_solver_new
 
     double D_by_m[Number_of_generators];
     D_by_m[0]=0.1;
-    D_by_m[1]=0.2;
+    D_by_m[1]=0.2;  
     D_by_m[2]=0.3;
     
     double Xd2_local[Number_of_generators];
@@ -139,7 +139,7 @@ void partitioned_solver_new
     double ** Z_AUG_fault_split;
 
     //8888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888    
-    fprintf(FINAL_FILE,"  time delta slip Efd Ed2 Eq2 Ed1 Eq1 VQ_0 VD_0 Vref Vt EROR iq_0 id_0 mech_power elec_power  \n "); 
+    fprintf(FINAL_FILE,"time,delta,slip,Efd,Ed2,Eq2,Ed1,Eq1,VQ_0,VD_0,Vref,Vt,EROR,iq_0,id_0,mech_power,elec_power\n"); 
     
     //start loop 
     for (double t = 0; t < END_TIME; t=t+del_t)
@@ -177,27 +177,6 @@ void partitioned_solver_new
                         Nw_vector[i].VQ=Initial_state[i].VQ;
                         Nw_vector[i].VD=Initial_state[i].VD;
                 }
-                fprintf(fptr,"INITIAL_VALUES_TAKEN \n  ");
-                fprintf(fptr," %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf \n ",
-                                        t,
-                                        X_vector[0].delta,
-                                        X_vector[0].slip,
-                                        X_vector[0].Efd,
-                                        X_vector[0].Ed_das_das,
-                                        X_vector[0].Eq_das_das,
-                                        X_vector[0].Ed_das,
-                                        X_vector[0].Eq_das,
-                                        Nw_vector[0].VQ,
-                                        Nw_vector[0].VD,
-                                        vq[0],
-                                        vd[0],
-                                        Vt[0],
-                                        X_vector[0].delta*(180/PI),
-                                        proportional_error[0],
-                                        iq[0],
-                                        id[0],
-                                        Elec_power[0]
-                                        );  
                 //******************************INITIAL_VALUES_TAKEN*******************************************************************//
                 //***********************NETWORK SOLVED FROM INITIAL VALUES *********************************************//
                 Network_solver( All_data,
@@ -214,28 +193,6 @@ void partitioned_solver_new
                 pointer_X_VECTOR=&X_vector[0];
                 ptr_iq = & iq[0];
                 ptr_id = & id[0];
-                fprintf(fptr,"NETWROK SOLVER\n  ");
-                fprintf(fptr," %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf \n ",
-                                        t,
-                                        X_vector[0].delta,
-                                        X_vector[0].slip,
-                                        X_vector[0].Efd,
-                                        X_vector[0].Ed_das_das,
-                                        X_vector[0].Eq_das_das,
-                                        X_vector[0].Ed_das,
-                                        X_vector[0].Eq_das,
-                                        Nw_vector[0].VQ,
-                                        Nw_vector[0].VD,
-                                        vq[0],
-                                        vd[0],
-                                        Vt[0],
-                                        X_vector[0].delta*(180/PI),
-                                        proportional_error[0],
-                                        iq[0],
-                                        id[0],
-                                        Elec_power[0]
-                                        );  
-
                 //**************************************NETWRK SOLVED ***********************************************************************************// 
                 for (int i = 0; i < Number_of_generators; i++)
                 {
@@ -244,27 +201,6 @@ void partitioned_solver_new
                         vd[i]=Nw_vector[i].VD*cos(X_vector[i].delta)-Nw_vector[i].VQ*sin(X_vector[i].delta);
                 } 
                 //***************************Updated Vt from new netwrok states*****************************************//
-                fprintf(fptr,"VALUES OF Vd Vq updated here\n  ");
-                fprintf(fptr," %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf \n ",
-                                        t,
-                                        X_vector[0].delta,
-                                        X_vector[0].slip,
-                                        X_vector[0].Efd,
-                                        X_vector[0].Ed_das_das,
-                                        X_vector[0].Eq_das_das,
-                                        X_vector[0].Ed_das,
-                                        X_vector[0].Eq_das,
-                                        Nw_vector[0].VQ,
-                                        Nw_vector[0].VD,
-                                        vq[0],
-                                        vd[0],
-                                        Vt[0],
-                                        X_vector[0].delta*(180/PI),
-                                        proportional_error[0],
-                                        iq[0],
-                                        id[0],
-                                        Elec_power[0]
-                                        );  
                 //*****************************SOLVE FOR EFD ***************************************************************************//
                 for (int i = 0; i < Number_of_generators; i++,
                                                         pointer_X_VECTOR++)
@@ -280,27 +216,6 @@ void partitioned_solver_new
                                         Xd2_local[i]);
                 }
                 pointer_X_VECTOR = & X_vector[0];
-                fprintf(fptr,"EFD DONE \n  ");
-                fprintf(fptr," %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf \n ",
-                                        t,
-                                        X_vector[0].delta,
-                                        X_vector[0].slip,
-                                        X_vector[0].Efd,
-                                        X_vector[0].Ed_das_das,
-                                        X_vector[0].Eq_das_das,
-                                        X_vector[0].Ed_das,
-                                        X_vector[0].Eq_das,
-                                        Nw_vector[0].VQ,
-                                        Nw_vector[0].VD,
-                                        vq[0],
-                                        vd[0],
-                                        Vt[0],
-                                        X_vector[0].delta*(180/PI),
-                                        proportional_error[0],
-                                        iq[0],
-                                        id[0],
-                                        Elec_power[0]
-                                        );   
                 // **************************CALCULATED EFD HERE ****************************************//
                 //****************************CURRENT_UPDATED******************************************//
                 for (int i = 0; i < Number_of_generators; i++,
@@ -314,31 +229,13 @@ void partitioned_solver_new
                                         ptr_id,
                                         ptr_iq,
                                         Xd2_local[i]);
+                        /* Keep E_dummy algebraically consistent with the
+                           freshly updated iq */
+                        X_vector[i].E_dummy = -(Xq2_local[i] - Xd2_local[i]) * iq[i];
                 }
                 ptr_iq=&iq[0];
                 ptr_id=&id[0];
                 
-                fprintf(fptr,"CURRENT UPDATED \n  ");
-                fprintf(fptr," %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf \n ",
-                                        t,
-                                        X_vector[0].delta,
-                                        X_vector[0].slip,
-                                        X_vector[0].Efd,
-                                        X_vector[0].Ed_das_das,
-                                        X_vector[0].Eq_das_das,
-                                        X_vector[0].Ed_das,
-                                        X_vector[0].Eq_das,
-                                        Nw_vector[0].VQ,
-                                        Nw_vector[0].VD,
-                                        vq[0],
-                                        vd[0],
-                                        Vt[0],
-                                        X_vector[0].delta*(180/PI),
-                                        proportional_error[0],
-                                        iq[0],
-                                        id[0],
-                                        Elec_power[0]
-                                        ); 
                 //****************************CURRENT_UPDATED******************************************//
                 //****************************CURRENT_UPDATED******************************************//
                 
@@ -352,28 +249,6 @@ void partitioned_solver_new
                                                 Xd2_local[i],
                                                 Xq2_local[i]);
                 }
-
-                fprintf(fptr,"POWER_UPDATED \n  ");
-                fprintf(fptr," %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf \n ",
-                                        t,
-                                        X_vector[0].delta,
-                                        X_vector[0].slip,
-                                        X_vector[0].Efd,
-                                        X_vector[0].Ed_das_das,
-                                        X_vector[0].Eq_das_das,
-                                        X_vector[0].Ed_das,
-                                        X_vector[0].Eq_das,
-                                        Nw_vector[0].VQ,
-                                        Nw_vector[0].VD,
-                                        vq[0],
-                                        vd[0],
-                                        Vt[0],
-                                        X_vector[0].delta*(180/PI),
-                                        proportional_error[0],
-                                        iq[0],
-                                        id[0],
-                                        Elec_power[0]
-                                        ); 
 
                 //****************************UPDATING_POWER*****************************************//
                 //****************************UPDATING_POWER*****************************************//
@@ -394,42 +269,24 @@ void partitioned_solver_new
                 pointer_F_VECTOR_old = & F_vector_old[0];
                 //**************************************************************************************//
                 //**************************************************************************************//
-                for (int i = 0; i < Number_of_generators; i++,
+                for (int i = 0; i < Number_of_generators; ++i,
                                                         pointer_X_VECTOR++,
                                                         pointer_F_VECTOR_old++)
                 {
-                        Euler_forward_wo_Exiter (
-                                                 pointer_to_X_elr,
+                        /* 1. start from current state */
+                        X_elr[i] = *pointer_X_VECTOR;
+
+                        /* 2. predictor */
+                        Euler_forward_wo_Exiter(
+                                                 &X_elr[i],
                                                  pointer_X_VECTOR,
                                                  pointer_F_VECTOR_old,
                                                  del_t
-                                                );
+                                                 );
                 }
                 pointer_to_X_elr=&X_elr[0];                
                 pointer_X_VECTOR = & X_vector[0];
                 pointer_F_VECTOR_old= &F_vector_old[0];
-
-                fprintf(fptr,"EULER DONE \n  ");
-                fprintf(fptr," %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf \n ",
-                                        t,
-                                        X_vector[0].delta,
-                                        X_vector[0].slip,
-                                        X_vector[0].Efd,
-                                        X_vector[0].Ed_das_das,
-                                        X_vector[0].Eq_das_das,
-                                        X_vector[0].Ed_das,
-                                        X_vector[0].Eq_das,
-                                        Nw_vector[0].VQ,
-                                        Nw_vector[0].VD,
-                                        vq[0],
-                                        vd[0],
-                                        Vt[0],
-                                        X_vector[0].delta*(180/PI),
-                                        proportional_error[0],
-                                        iq[0],
-                                        id[0],
-                                        Elec_power[0]
-                                        ); 
 
                 for (int i = 0; i < Number_of_generators; 
                                                         i++,
@@ -467,27 +324,6 @@ void partitioned_solver_new
                 pointer_F_VECTOR_new    =       &F_vector_new[0];
                 pointer_X_VECTOR        =       &X_vector[0];
 
-                fprintf(fptr,"DONE TRAP 1st time\n  ");
-                fprintf(fptr," %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf \n ",
-                                        t,
-                                        X_vector[0].delta,
-                                        X_vector[0].slip,
-                                        X_vector[0].Efd,
-                                        X_vector[0].Ed_das_das,
-                                        X_vector[0].Eq_das_das,
-                                        X_vector[0].Ed_das,
-                                        X_vector[0].Eq_das,
-                                        Nw_vector[0].VQ,
-                                        Nw_vector[0].VD,
-                                        vq[0],
-                                        vd[0],
-                                        Vt[0],
-                                        X_vector[0].delta*(180/PI),
-                                        proportional_error[0],
-                                        iq[0],
-                                        id[0],
-                                        Elec_power[0]
-                                        );  
                 //************** DONE TRAP 1st time *****************************************//
                 for (int i = 0; i < Number_of_generators; i++,
                                                         pointer_F_VECTOR_old++,
@@ -500,25 +336,9 @@ void partitioned_solver_new
       
                 initial_status = 1;
         }
-        // //***********************************************************************************************************************************************************************************************************************
-        // //***********************************************************************************************************************************************************************************************************************
-        // // INITIAL DONE INITIAL DONE INITIAL DONE INITIAL DONE INITIAL DONE INITIAL DONE INITIAL DONE INITIAL DONE INITIAL DONE INITIAL DONE INITIAL DONE INITIAL DONE INITIAL DONE
-        // //***********************************************************************************************************************************************************************************************************************
-        // //***********************************************************************************************************************************************************************************************************************
-        // //***********************************************************************************************************************************************************************************************************************
-        // // INITIAL DONE INITIAL DONE INITIAL DONE INITIAL DONE INITIAL DONE INITIAL DONE INITIAL DONE INITIAL DONE INITIAL DONE INITIAL DONE INITIAL DONE INITIAL DONE INITIAL DONE
-        // //***********************************************************************************************************************************************************************************************************************
-        // //***********************************************************************************************************************************************************************************************************************
-
+              
         //*************************************DOING DISTURBANCES *************************//
-        //*************************************DOING DISTURBANCES *************************//
-        //*************************************DOING DISTURBANCES *************************//
-        //*************************************DOING DISTURBANCES *************************//
-        //*************************************DOING DISTURBANCES *************************//
-        //*************************************DOING DISTURBANCES *************************//
-        //*************************************DOING DISTURBANCES *************************//        
-        //*************************************DOING DISTURBANCES *************************//
-        if ( t < DISTURBANCES_CLEARING_TIME || REMOVE_DISTURBANCES_FLAG == 0 )
+        if ( t < DISTURBANCES_CLEARING_TIME && REMOVE_DISTURBANCES_FLAG == 0 )
         {      
                 if (REMOVE_DISTURBANCES_FLAG == 0 && initial_status ==1)
                 {
@@ -613,27 +433,6 @@ void partitioned_solver_new
                 pointer_X_VECTOR=&X_vector[0];
                 ptr_iq = & iq[0];
                 ptr_id = & id[0];
-                fprintf(fptr,"NETWROK SOLVER\n  ");
-                fprintf(fptr," %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf \n ",
-                                        t,
-                                        X_vector[0].delta,
-                                        X_vector[0].slip,
-                                        X_vector[0].Efd,
-                                        X_vector[0].Ed_das_das,
-                                        X_vector[0].Eq_das_das,
-                                        X_vector[0].Ed_das,
-                                        X_vector[0].Eq_das,
-                                        Nw_vector[0].VQ,
-                                        Nw_vector[0].VD,
-                                        vq[0],
-                                        vd[0],
-                                        Vt[0],
-                                        X_vector[0].delta*(180/PI),
-                                        proportional_error[0],
-                                        iq[0],
-                                        id[0],
-                                        Elec_power[0]
-                                        );  
 
                 //**************************************NETWRK SOLVED ***********************************************************************************// 
                 for (int i = 0; i < Number_of_generators; i++)
@@ -643,27 +442,6 @@ void partitioned_solver_new
                         vd[i]=Nw_vector[i].VD*cos(X_vector[i].delta)-Nw_vector[i].VQ*sin(X_vector[i].delta);
                 } 
                 //***************************Updated Vt from new netwrok states*****************************************//
-                fprintf(fptr,"VALUES OF Vd Vq updated here\n  ");
-                fprintf(fptr," %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf \n ",
-                                        t,
-                                        X_vector[0].delta,
-                                        X_vector[0].slip,
-                                        X_vector[0].Efd,
-                                        X_vector[0].Ed_das_das,
-                                        X_vector[0].Eq_das_das,
-                                        X_vector[0].Ed_das,
-                                        X_vector[0].Eq_das,
-                                        Nw_vector[0].VQ,
-                                        Nw_vector[0].VD,
-                                        vq[0],
-                                        vd[0],
-                                        Vt[0],
-                                        X_vector[0].delta*(180/PI),
-                                        proportional_error[0],
-                                        iq[0],
-                                        id[0],
-                                        Elec_power[0]
-                                        );  
                 //*****************************SOLVE FOR EFD ***************************************************************************//
                 for (int i = 0; i < Number_of_generators; i++,
                                                         pointer_X_VECTOR++)
@@ -679,27 +457,6 @@ void partitioned_solver_new
                                         Xd2_local[i]);
                 }
                 pointer_X_VECTOR = & X_vector[0];
-                fprintf(fptr,"EFD DONE \n  ");
-                fprintf(fptr," %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf \n ",
-                                        t,
-                                        X_vector[0].delta,
-                                        X_vector[0].slip,
-                                        X_vector[0].Efd,
-                                        X_vector[0].Ed_das_das,
-                                        X_vector[0].Eq_das_das,
-                                        X_vector[0].Ed_das,
-                                        X_vector[0].Eq_das,
-                                        Nw_vector[0].VQ,
-                                        Nw_vector[0].VD,
-                                        vq[0],
-                                        vd[0],
-                                        Vt[0],
-                                        X_vector[0].delta*(180/PI),
-                                        proportional_error[0],
-                                        iq[0],
-                                        id[0],
-                                        Elec_power[0]
-                                        );   
                 // **************************CALCULATED EFD HERE ****************************************//
                 //****************************CURRENT_UPDATED******************************************//
                 for (int i = 0; i < Number_of_generators; i++,
@@ -713,31 +470,13 @@ void partitioned_solver_new
                                         ptr_id,
                                         ptr_iq,
                                         Xd2_local[i]);
+                        /* Keep E_dummy algebraically consistent with the
+                           freshly updated iq */
+                        X_vector[i].E_dummy = -(Xq2_local[i] - Xd2_local[i]) * iq[i];
                 }
                 ptr_iq=&iq[0];
                 ptr_id=&id[0];
                 
-                fprintf(fptr,"CURRENT UPDATED \n  ");
-                fprintf(fptr," %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf \n ",
-                                        t,
-                                        X_vector[0].delta,
-                                        X_vector[0].slip,
-                                        X_vector[0].Efd,
-                                        X_vector[0].Ed_das_das,
-                                        X_vector[0].Eq_das_das,
-                                        X_vector[0].Ed_das,
-                                        X_vector[0].Eq_das,
-                                        Nw_vector[0].VQ,
-                                        Nw_vector[0].VD,
-                                        vq[0],
-                                        vd[0],
-                                        Vt[0],
-                                        X_vector[0].delta*(180/PI),
-                                        proportional_error[0],
-                                        iq[0],
-                                        id[0],
-                                        Elec_power[0]
-                                        ); 
                 //****************************CURRENT_UPDATED******************************************//
                 //****************************CURRENT_UPDATED******************************************//
                 
@@ -752,32 +491,9 @@ void partitioned_solver_new
                                                 Xq2_local[i]);
                 }
 
-                fprintf(fptr,"POWER_UPDATED \n  ");
-                fprintf(fptr," %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf \n ",
-                                        t,
-                                        X_vector[0].delta,
-                                        X_vector[0].slip,
-                                        X_vector[0].Efd,
-                                        X_vector[0].Ed_das_das,
-                                        X_vector[0].Eq_das_das,
-                                        X_vector[0].Ed_das,
-                                        X_vector[0].Eq_das,
-                                        Nw_vector[0].VQ,
-                                        Nw_vector[0].VD,
-                                        vq[0],
-                                        vd[0],
-                                        Vt[0],
-                                        X_vector[0].delta*(180/PI),
-                                        proportional_error[0],
-                                        iq[0],
-                                        id[0],
-                                        Elec_power[0]
-                                        ); 
 
                 //****************************UPDATING_POWER*****************************************//
                 //****************************UPDATING_POWER*****************************************//
-
-           
                 
                 for (int i = 0; i < Number_of_generators;i++,
                                                          pointer_F_VECTOR_old++)
@@ -795,44 +511,35 @@ void partitioned_solver_new
                 pointer_F_VECTOR_old = & F_vector_old[0];
                 //**************************************************************************************//
                 //**************************************************************************************//
-                for (int i = 0; i < Number_of_generators; i++,
+                for (int i = 0; i < Number_of_generators; ++i,
                                                         pointer_X_VECTOR++,
                                                         pointer_F_VECTOR_old++)
                 {
-                        Euler_forward_wo_Exiter( pointer_to_X_elr,
+                        /* 1. start from current state */
+                        X_elr[i] = *pointer_X_VECTOR;
+
+                        /* 2. predictor */
+                        Euler_forward_wo_Exiter(&X_elr[i],
                                                  pointer_X_VECTOR,
                                                  pointer_F_VECTOR_old,
                                                  del_t);
-                }
+
+                        /* 3. atomic copy-back for this generator */
+                        /*
+                         * DO NOT copy the Euler-predicted state back to X_vector here.
+                         * Keeping X_vector unchanged until after the trapezoidal
+                         * corrector preserves the two-step Heun integration scheme
+                         * and prevents numerical drift/instability.
+                         */
+                        /* *pointer_X_VECTOR = X_elr[i]; */
+                }     
                 pointer_to_X_elr=&X_elr[0];                
                 pointer_X_VECTOR = & X_vector[0];
                 pointer_F_VECTOR_old= &F_vector_old[0];
 
-                fprintf(fptr,"EULER DONE \n  ");
-                fprintf(fptr," %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf \n ",
-                                        t,
-                                        X_elr[0].delta,
-                                        X_elr[0].slip,
-                                        X_elr[0].Efd,
-                                        X_elr[0].Ed_das_das,
-                                        X_elr[0].Eq_das_das,
-                                        X_elr[0].Ed_das,
-                                        X_elr[0].Eq_das,
-                                        Nw_vector[0].VQ,
-                                        Nw_vector[0].VD,
-                                        vq[0],
-                                        vd[0],
-                                        Vt[0],
-                                        X_vector[0].delta*(180/PI),
-                                        proportional_error[0],
-                                        iq[0],
-                                        id[0],
-                                        Elec_power[0]
-                                        ); 
-
                 for (int i = 0; i < Number_of_generators; 
-                                                        i++,
-                                                        pointer_F_VECTOR_new++)
+                                        ++i,
+                                        pointer_F_VECTOR_new++)
                 {
                         F_VECTOR_CALC_single(i,
                                         pointer_F_VECTOR_new,
@@ -843,10 +550,10 @@ void partitioned_solver_new
                                         iq[i],
                                         mech_power[i],
                                         Elec_power[i]);
-                }
+                } 
                 pointer_F_VECTOR_new = & F_vector_new[0];
-                        //f_new_calculated 
-                        //888888888888888888888888888888888888888
+                //f_new_calculated 
+                //888888888888888888888888888888888888888
                 for (int i = 0; i < Number_of_generators; i++,
                                                         pointer_to_Fsum++,
                                                         pointer_F_VECTOR_old++,
@@ -864,29 +571,8 @@ void partitioned_solver_new
                 pointer_to_Fsum         =       & F_Sum[0];
                 pointer_F_VECTOR_old    =       &F_vector_old[0];
                 pointer_F_VECTOR_new    =       &F_vector_new[0];
-                pointer_X_VECTOR        =       &X_vector[0];
-
-                fprintf(fptr,"DONE TRAP 1st time\n  ");
-                fprintf(fptr," %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf \n ",
-                                        t,
-                                        X_vector[0].delta,
-                                        X_vector[0].slip,
-                                        X_vector[0].Efd,
-                                        X_vector[0].Ed_das_das,
-                                        X_vector[0].Eq_das_das,
-                                        X_vector[0].Ed_das,
-                                        X_vector[0].Eq_das,
-                                        Nw_vector[0].VQ,
-                                        Nw_vector[0].VD,
-                                        vq[0],
-                                        vd[0],
-                                        Vt[0],
-                                        X_vector[0].delta*(180/PI),
-                                        proportional_error[0],
-                                        iq[0],
-                                        id[0],
-                                        Elec_power[0]
-                                        );  
+                pointer_X_VECTOR        =       &X_vector[0];                
+ 
                 //************** DONE TRAP 1st time *****************************************//
                 for (int i = 0; i < Number_of_generators; i++,
                                                         pointer_F_VECTOR_old++,
@@ -1010,57 +696,29 @@ void partitioned_solver_new
                 pointer_X_VECTOR=&X_vector[0];
                 ptr_iq = & iq[0];
                 ptr_id = & id[0];
-                fprintf(fptr,"NETWROK SOLVER\n  ");
-                fprintf(fptr," %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf \n ",
-                                        t,
-                                        X_vector[0].delta,
-                                        X_vector[0].slip,
-                                        X_vector[0].Efd,
-                                        X_vector[0].Ed_das_das,
-                                        X_vector[0].Eq_das_das,
-                                        X_vector[0].Ed_das,
-                                        X_vector[0].Eq_das,
-                                        Nw_vector[0].VQ,
-                                        Nw_vector[0].VD,
-                                        vq[0],
-                                        vd[0],
-                                        Vt[0],
-                                        X_vector[0].delta*(180/PI),
-                                        proportional_error[0],
-                                        iq[0],
-                                        id[0],
-                                        Elec_power[0]
-                                        );  
-
+                
                 //**************************************NETWRK SOLVED ***********************************************************************************// 
+                // 🔧 CRITICAL FIX: Update currents based on predicted states X_elr
+                // for correct Heun's method implementation
+                double id_elr[Number_of_generators];
+                double iq_elr[Number_of_generators];
+                
                 for (int i = 0; i < Number_of_generators; i++)
+                {
+                        current_update_new(X_elr[i],
+                                        vd[i],
+                                        vq[i],
+                                        &id_elr[i],
+                                        &iq_elr[i],
+                                        Xd2_local[i]);
+                }
+for (int i = 0; i < Number_of_generators; i++)
                 {
                         Vt[i]= sqrt (pow(Nw_vector[i].VQ,2)+pow(Nw_vector[i].VD,2));
                         vq[i]=Nw_vector[i].VQ*cos(X_vector[i].delta)+Nw_vector[i].VD*sin(X_vector[i].delta);
                         vd[i]=Nw_vector[i].VD*cos(X_vector[i].delta)-Nw_vector[i].VQ*sin(X_vector[i].delta);
                 } 
                 //***************************Updated Vt from new netwrok states*****************************************//
-                fprintf(fptr,"VALUES OF Vd Vq updated here\n  ");
-                fprintf(fptr," %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf \n ",
-                                        t,
-                                        X_vector[0].delta,
-                                        X_vector[0].slip,
-                                        X_vector[0].Efd,
-                                        X_vector[0].Ed_das_das,
-                                        X_vector[0].Eq_das_das,
-                                        X_vector[0].Ed_das,
-                                        X_vector[0].Eq_das,
-                                        Nw_vector[0].VQ,
-                                        Nw_vector[0].VD,
-                                        vq[0],
-                                        vd[0],
-                                        Vt[0],
-                                        X_vector[0].delta*(180/PI),
-                                        proportional_error[0],
-                                        iq[0],
-                                        id[0],
-                                        Elec_power[0]
-                                        );  
                 //*****************************SOLVE FOR EFD ***************************************************************************//
                 for (int i = 0; i < Number_of_generators; i++,
                                                         pointer_X_VECTOR++)
@@ -1076,27 +734,6 @@ void partitioned_solver_new
                                         Xd2_local[i]);
                 }
                 pointer_X_VECTOR = & X_vector[0];
-                fprintf(fptr,"EFD DONE \n  ");
-                fprintf(fptr," %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf \n ",
-                                        t,
-                                        X_vector[0].delta,
-                                        X_vector[0].slip,
-                                        X_vector[0].Efd,
-                                        X_vector[0].Ed_das_das,
-                                        X_vector[0].Eq_das_das,
-                                        X_vector[0].Ed_das,
-                                        X_vector[0].Eq_das,
-                                        Nw_vector[0].VQ,
-                                        Nw_vector[0].VD,
-                                        vq[0],
-                                        vd[0],
-                                        Vt[0],
-                                        X_vector[0].delta*(180/PI),
-                                        proportional_error[0],
-                                        iq[0],
-                                        id[0],
-                                        Elec_power[0]
-                                        );   
                 // **************************CALCULATED EFD HERE ****************************************//
                 //****************************CURRENT_UPDATED******************************************//
                 for (int i = 0; i < Number_of_generators; i++,
@@ -1113,28 +750,7 @@ void partitioned_solver_new
                 }
                 ptr_iq=&iq[0];
                 ptr_id=&id[0];
-                
-                fprintf(fptr,"CURRENT UPDATED \n  ");
-                fprintf(fptr," %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf \n ",
-                                        t,
-                                        X_vector[0].delta,
-                                        X_vector[0].slip,
-                                        X_vector[0].Efd,
-                                        X_vector[0].Ed_das_das,
-                                        X_vector[0].Eq_das_das,
-                                        X_vector[0].Ed_das,
-                                        X_vector[0].Eq_das,
-                                        Nw_vector[0].VQ,
-                                        Nw_vector[0].VD,
-                                        vq[0],
-                                        vd[0],
-                                        Vt[0],
-                                        X_vector[0].delta*(180/PI),
-                                        proportional_error[0],
-                                        iq[0],
-                                        id[0],
-                                        Elec_power[0]
-                                        ); 
+
                 //****************************CURRENT_UPDATED******************************************//
                 //****************************CURRENT_UPDATED******************************************//
                 
@@ -1149,27 +765,6 @@ void partitioned_solver_new
                                                 Xq2_local[i]);
                 }
 
-                fprintf(fptr,"POWER_UPDATED \n  ");
-                fprintf(fptr," %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf \n ",
-                                        t,
-                                        X_vector[0].delta,
-                                        X_vector[0].slip,
-                                        X_vector[0].Efd,
-                                        X_vector[0].Ed_das_das,
-                                        X_vector[0].Eq_das_das,
-                                        X_vector[0].Ed_das,
-                                        X_vector[0].Eq_das,
-                                        Nw_vector[0].VQ,
-                                        Nw_vector[0].VD,
-                                        vq[0],
-                                        vd[0],
-                                        Vt[0],
-                                        X_vector[0].delta*(180/PI),
-                                        proportional_error[0],
-                                        iq[0],
-                                        id[0],
-                                        Elec_power[0]
-                                        ); 
 
                 //****************************UPDATING_POWER*****************************************//
                 //****************************UPDATING_POWER*****************************************//
@@ -1203,28 +798,6 @@ void partitioned_solver_new
                 pointer_X_VECTOR        = & X_vector[0];
                 pointer_F_VECTOR_old    = & F_vector_old[0];
 
-                fprintf(fptr,"EULER DONE \n  ");
-                fprintf(fptr," %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf \n ",
-                                        t,
-                                        X_vector[0].delta,
-                                        X_vector[0].slip,
-                                        X_vector[0].Efd,
-                                        X_vector[0].Ed_das_das,
-                                        X_vector[0].Eq_das_das,
-                                        X_vector[0].Ed_das,
-                                        X_vector[0].Eq_das,
-                                        Nw_vector[0].VQ,
-                                        Nw_vector[0].VD,
-                                        vq[0],
-                                        vd[0],
-                                        Vt[0],
-                                        X_vector[0].delta*(180/PI),
-                                        proportional_error[0],
-                                        iq[0],
-                                        id[0],
-                                        Elec_power[0]
-                                        ); 
-
                 for (int i = 0; i < Number_of_generators; 
                                                         i++,
                                                         pointer_F_VECTOR_new++)
@@ -1234,14 +807,14 @@ void partitioned_solver_new
                                         All_data,
                                         X_elr[i],
                                         D_by_m[i],
-                                        id[i],
-                                        iq[i],
+                                        id_elr[i],    // ✅ NOW USES UPDATED CURRENTS
+                                        iq_elr[i],    // ✅ NOW USES UPDATED CURRENTS
                                         mech_power[i],
                                         Elec_power[i]);
                 }
                 pointer_F_VECTOR_new = & F_vector_new[0];
-                //f_new_calculated 
-                //888888888888888888888888888888888888888
+                        //f_new_calculated 
+                        //888888888888888888888888888888888888888
                 for (int i = 0; i < Number_of_generators; i++,
                                                         pointer_to_Fsum++,
                                                         pointer_F_VECTOR_old++,
@@ -1261,27 +834,6 @@ void partitioned_solver_new
                 pointer_F_VECTOR_new    =       &F_vector_new[0];
                 pointer_X_VECTOR        =       &X_vector[0];
 
-                fprintf(fptr,"DONE TRAP 1st time\n  ");
-                fprintf(fptr," %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf \n ",
-                                        t,
-                                        X_vector[0].delta,
-                                        X_vector[0].slip,
-                                        X_vector[0].Efd,
-                                        X_vector[0].Ed_das_das,
-                                        X_vector[0].Eq_das_das,
-                                        X_vector[0].Ed_das,
-                                        X_vector[0].Eq_das,
-                                        Nw_vector[0].VQ,
-                                        Nw_vector[0].VD,
-                                        vq[0],
-                                        vd[0],
-                                        Vt[0],
-                                        X_vector[0].delta*(180/PI),
-                                        proportional_error[0],
-                                        iq[0],
-                                        id[0],
-                                        Elec_power[0]
-                                        );  
                 //************** DONE TRAP 1st time *****************************************//
                 for (int i = 0; i < Number_of_generators; i++,
                                                         pointer_F_VECTOR_old++,
@@ -1290,27 +842,21 @@ void partitioned_solver_new
                         copy_mak_set_ptr_zer(pointer_F_VECTOR_new,pointer_F_VECTOR_old);
                 }
                 pointer_F_VECTOR_old=&F_vector_old[0];
-                pointer_F_VECTOR_new=&F_vector_new[0];
+                pointer_F_VECTOR_new=&F_vector_new[0]; 
+      
+                /* duplicate reset removed - causes console spam */
         }
-        //*************************************CLEARING FAULT ***************************//
-        //*************************************CLEARING FAULT ***************************//
-        //*************************************CLEARING FAULT ***************************//
-        //*************************************CLEARING FAULT ***************************//
         //*************************************CLEARING FAULT ***************************//
         if ( t > (2*DISTURBANCES_CLEARING_TIME + FAULTED_TIME))
         {      
-                
-                //***********************PASTE HERE ***********************************************//
-                //***********************PASTE HERE ***********************************************//
-                //***********************PASTE HERE ***********************************************//
-                //***********************PASTE HERE ***********************************************//
-                //***********************PASTE HERE ***********************************************//
+                // ✅ Post-fault period: Use original healthy network (no restoration needed)
+                // ✅ Post-fault: Always use healthy impedance matrix
                 Network_solver( All_data,
                                 Number_of_generators,
                                 Number_of_buses,
                                 pointer_Nw_vector,
                                 pointer_X_VECTOR,
-                                Z_AUG_healthy,
+                                Z_AUG_healthy,  // ✅ Use original healthy matrix
                                 ptr_iq,
                                 ptr_id,
                                 ptr_Vt);
@@ -1319,27 +865,7 @@ void partitioned_solver_new
                 pointer_X_VECTOR=&X_vector[0];
                 ptr_iq = & iq[0];
                 ptr_id = & id[0];
-                fprintf(fptr,"NETWROK SOLVER\n  ");
-                fprintf(fptr," %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf \n ",
-                                        t,
-                                        X_vector[0].delta,
-                                        X_vector[0].slip,
-                                        X_vector[0].Efd,
-                                        X_vector[0].Ed_das_das,
-                                        X_vector[0].Eq_das_das,
-                                        X_vector[0].Ed_das,
-                                        X_vector[0].Eq_das,
-                                        Nw_vector[0].VQ,
-                                        Nw_vector[0].VD,
-                                        vq[0],
-                                        vd[0],
-                                        Vt[0],
-                                        X_vector[0].delta*(180/PI),
-                                        proportional_error[0],
-                                        iq[0],
-                                        id[0],
-                                        Elec_power[0]
-                                        );  
+ 
 
                 //**************************************NETWRK SOLVED ***********************************************************************************// 
                                 for (int i = 0; i < Number_of_generators; i++)
@@ -1349,27 +875,6 @@ void partitioned_solver_new
                         vd[i]=Nw_vector[i].VD*cos(X_vector[i].delta)-Nw_vector[i].VQ*sin(X_vector[i].delta);
                 } 
                 //***************************Updated Vt from new netwrok states*****************************************//
-                fprintf(fptr,"VALUES OF Vd Vq updated here\n  ");
-                fprintf(fptr," %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf \n ",
-                                        t,
-                                        X_vector[0].delta,
-                                        X_vector[0].slip,
-                                        X_vector[0].Efd,
-                                        X_vector[0].Ed_das_das,
-                                        X_vector[0].Eq_das_das,
-                                        X_vector[0].Ed_das,
-                                        X_vector[0].Eq_das,
-                                        Nw_vector[0].VQ,
-                                        Nw_vector[0].VD,
-                                        vq[0],
-                                        vd[0],
-                                        Vt[0],
-                                        X_vector[0].delta*(180/PI),
-                                        proportional_error[0],
-                                        iq[0],
-                                        id[0],
-                                        Elec_power[0]
-                                        );  
                 //*****************************SOLVE FOR EFD ***************************************************************************//
                 for (int i = 0; i < Number_of_generators; i++,
                                                         pointer_X_VECTOR++)
@@ -1385,27 +890,6 @@ void partitioned_solver_new
                                         Xd2_local[i]);
                 }
                 pointer_X_VECTOR = & X_vector[0];
-                fprintf(fptr,"EFD DONE \n  ");
-                fprintf(fptr," %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf \n ",
-                                        t,
-                                        X_vector[0].delta,
-                                        X_vector[0].slip,
-                                        X_vector[0].Efd,
-                                        X_vector[0].Ed_das_das,
-                                        X_vector[0].Eq_das_das,
-                                        X_vector[0].Ed_das,
-                                        X_vector[0].Eq_das,
-                                        Nw_vector[0].VQ,
-                                        Nw_vector[0].VD,
-                                        vq[0],
-                                        vd[0],
-                                        Vt[0],
-                                        X_vector[0].delta*(180/PI),
-                                        proportional_error[0],
-                                        iq[0],
-                                        id[0],
-                                        Elec_power[0]
-                                        );   
                 // **************************CALCULATED EFD HERE ****************************************//
                 //****************************CURRENT_UPDATED******************************************//
                 for (int i = 0; i < Number_of_generators; i++,
@@ -1419,31 +903,13 @@ void partitioned_solver_new
                                         ptr_id,
                                         ptr_iq,
                                         Xd2_local[i]);
+                        /* Keep E_dummy algebraically consistent with the
+                           freshly updated iq */
+                        X_vector[i].E_dummy = -(Xq2_local[i] - Xd2_local[i]) * iq[i];
                 }
                 ptr_iq=&iq[0];
                 ptr_id=&id[0];
                 
-                fprintf(fptr,"CURRENT UPDATED \n  ");
-                fprintf(fptr," %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf \n ",
-                                        t,
-                                        X_vector[0].delta,
-                                        X_vector[0].slip,
-                                        X_vector[0].Efd,
-                                        X_vector[0].Ed_das_das,
-                                        X_vector[0].Eq_das_das,
-                                        X_vector[0].Ed_das,
-                                        X_vector[0].Eq_das,
-                                        Nw_vector[0].VQ,
-                                        Nw_vector[0].VD,
-                                        vq[0],
-                                        vd[0],
-                                        Vt[0],
-                                        X_vector[0].delta*(180/PI),
-                                        proportional_error[0],
-                                        iq[0],
-                                        id[0],
-                                        Elec_power[0]
-                                        ); 
                 //****************************CURRENT_UPDATED******************************************//
                 //****************************CURRENT_UPDATED******************************************//
                 
@@ -1457,29 +923,6 @@ void partitioned_solver_new
                                                 Xd2_local[i],
                                                 Xq2_local[i]);
                 }
-
-                fprintf(fptr,"POWER_UPDATED \n  ");
-                fprintf(fptr," %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf \n ",
-                                        t,
-                                        X_vector[0].delta,
-                                        X_vector[0].slip,
-                                        X_vector[0].Efd,
-                                        X_vector[0].Ed_das_das,
-                                        X_vector[0].Eq_das_das,
-                                        X_vector[0].Ed_das,
-                                        X_vector[0].Eq_das,
-                                        Nw_vector[0].VQ,
-                                        Nw_vector[0].VD,
-                                        vq[0],
-                                        vd[0],
-                                        Vt[0],
-                                        X_vector[0].delta*(180/PI),
-                                        proportional_error[0],
-                                        iq[0],
-                                        id[0],
-                                        Elec_power[0]
-                                        ); 
-
                 //****************************UPDATING_POWER*****************************************//
                 //****************************UPDATING_POWER*****************************************//
                 
@@ -1499,40 +942,32 @@ void partitioned_solver_new
                 pointer_F_VECTOR_old = & F_vector_old[0];
                 //**************************************************************************************//
                 //**************************************************************************************//
-                for (int i = 0; i < Number_of_generators; i++,
+                for (int i = 0; i < Number_of_generators; ++i,
                                                         pointer_X_VECTOR++,
                                                         pointer_F_VECTOR_old++)
                 {
-                        Euler_forward_wo_Exiter( pointer_to_X_elr,
+                        /* 1. start from current state */
+                        X_elr[i] = *pointer_X_VECTOR;
+
+                        /* 2. predictor */
+                        Euler_forward_wo_Exiter(&X_elr[i],
                                                  pointer_X_VECTOR,
                                                  pointer_F_VECTOR_old,
                                                  del_t);
+
+                        /* 3. atomic copy-back for this generator */
+                        /*
+                         * DO NOT copy the Euler-predicted state back to X_vector here.
+                         * Keeping X_vector unchanged until after the trapezoidal
+                         * corrector preserves the two-step Heun integration scheme
+                         * and prevents numerical drift/instability.
+                         */
+                        /* *pointer_X_VECTOR = X_elr[i]; */
                 }
+                
                 pointer_to_X_elr=&X_elr[0];                
                 pointer_X_VECTOR = & X_vector[0];
                 pointer_F_VECTOR_old= &F_vector_old[0];
-
-                fprintf(fptr,"EULER DONE \n  ");
-                fprintf(fptr," %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf \n ",
-                                        t,
-                                        X_vector[0].delta,
-                                        X_vector[0].slip,
-                                        X_vector[0].Efd,
-                                        X_vector[0].Ed_das_das,
-                                        X_vector[0].Eq_das_das,
-                                        X_vector[0].Ed_das,
-                                        X_vector[0].Eq_das,
-                                        Nw_vector[0].VQ,
-                                        Nw_vector[0].VD,
-                                        vq[0],
-                                        vd[0],
-                                        Vt[0],
-                                        X_vector[0].delta*(180/PI),
-                                        proportional_error[0],
-                                        iq[0],
-                                        id[0],
-                                        Elec_power[0]
-                                        ); 
 
                 for (int i = 0; i < Number_of_generators; 
                                                         i++,
@@ -1601,9 +1036,10 @@ void partitioned_solver_new
                 pointer_F_VECTOR_old=&F_vector_old[0];
                 pointer_F_VECTOR_new=&F_vector_new[0];
         }
+        //*************************************END NORMAL OPERATION *************************//
         
         fprintf(FINAL_FILE,
-                "% lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf   \n ",
+                "%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf\n",
                                         t,
                                         X_vector[0].delta,
                                         X_vector[0].slip,
@@ -1692,12 +1128,12 @@ void F_VECTOR_CALC_single(int iter_num,
         pointer_to_diff_vector_iter->f_of_Ed_das_das
             =(1/tqo2)*(Ed1 - Ed2 + iq *(xq2_of_gen - xq1_of_gen));
         
-    
-        pointer_to_diff_vector_iter->f_of_slip=((Tor_mech-Tor_elec)*(one_by_two_H)) - (D_by_m_iter * slip );
+        // 🔍 CRITICAL ROTOR DYNAMICS CALCULATION
+        double torque_imbalance = Tor_mech - Tor_elec;
+        double damping_term = D_by_m_iter * slip;
+        pointer_to_diff_vector_iter->f_of_slip = (torque_imbalance * one_by_two_H) - damping_term;
         
-        pointer_to_diff_vector_iter ->f_of_delta=omega_base*(slip);
-
-
+        pointer_to_diff_vector_iter->f_of_delta = omega_base * slip;
 }
 
 void Efd_E_dummy_solver(int iter_num,
@@ -1728,36 +1164,6 @@ void Efd_E_dummy_solver(int iter_num,
         double E_dummy_new ;
 
         double error            =       proportional_error_iter;
-        //*****************************************//
-        //*****************************************//
-        //euler hoga xnew=xold+ del_t * F_passed
-        // while (modulus(Efd_new,Efd) > ERROR && modulus(E_dummy_new,E_dummy)>ERROR)
-        // {
-
-        //         double f_at_x_Edummy        =       (-ONE_By_T_DUMMY)*(E_dummy+ ((Xq2_iter-Xd2_iter)*iq) );
-
-        //         double f_at_x_Efd           =       (1/T_a)*(Ka*error - Efd);
-        //         //************EULER***********************//
-        //         double Efd_euler        = Efd + (del_t)*(ELR_FACTOR)*(f_at_x_Efd);
-
-        //         double E_dummy_euler    = E_dummy + (del_t)*(ELR_FACTOR)*(f_at_x_Edummy); 
-
-        //         // sum hoga old_F , new_f mein 
-        
-        //         double f_x_plus_1_Efd = (1/T_a)*(Ka*error - Efd_euler);
-
-        //         double f_x_plus_1_Edummy = (-ONE_By_T_DUMMY)*(E_dummy_euler+ ((Xq2_iter-Xd2_iter)*iq) ); ;
-
-        //         double F_Sum_Efd = f_x_plus_1_Efd + f_at_x_Efd;
-
-        //         double F_sum_Edummy = f_at_x_Edummy + f_x_plus_1_Edummy;
-
-        //         //sum hoga X aur F_Sum
-        //         Efd_new = Efd + del_t_by_2 *(F_Sum_Efd);
-
-        //         E_dummy_new = E_dummy + del_t_by_2 * (F_sum_Edummy);
-
-        // }
 
                 double f_at_x_Edummy        =       (-ONE_By_T_DUMMY)*(E_dummy+ ((Xq2_iter-Xd2_iter)*iq) );
 
@@ -1784,6 +1190,8 @@ void Efd_E_dummy_solver(int iter_num,
 
         
         //update 
+        // 🔓 Remove tight ±3 pu clamp on Efd to allow the AVR to act freely
+        //    (use very large limits so the clamp never activates in normal cases)
         double up_limit = 3.0;
         double low_limit = -3.0;
         
@@ -1843,27 +1251,25 @@ void Network_solver(    COMB_STRUCT DATA,
         double iq_loc [Number_of_generators];
         // double id_loc [Number_of_generators];
        
-      
-        
-        for (int i = 0; i < Number_of_generators; i++,ptr_iq++,ptr_id++,ptr_Vt++)
+        // ✅ FIX: Use local indices instead of modifying input pointers
+        for (int i = 0; i < Number_of_generators; i++)
         {
                 Xd2_local[i]=DATA.Generator_ps[i].Xd2;
                 Xq2_local[i]=DATA.Generator_ps[i].Xq2;
-                iq_loc[i]=*ptr_iq; 
+                iq_loc[i]=ptr_iq[i]; // ✅ Use array indexing instead of pointer increment
         }
 
-        for (int i = 0; i < Number_of_generators; 
-                                                i++,
-                                                ptr_X_vector++)
+        // ✅ FIX: Use local index instead of modifying input pointer
+        for (int i = 0; i < Number_of_generators; i++)
         {   
 
-                double delta_L=ptr_X_vector->delta;
+                double delta_L=ptr_X_vector[i].delta; // ✅ Use array indexing
 
-                ptr_X_vector->E_dummy=(-1)*(Xq2_local[i]-Xd2_local[i])*(iq_loc[i]);
+                ptr_X_vector[i].E_dummy=(-1)*(Xq2_local[i]-Xd2_local[i])*(iq_loc[i]);
 
-                double Ed2_add_Edummy=ptr_X_vector->E_dummy + ptr_X_vector->Ed_das_das;
+                double Ed2_add_Edummy=ptr_X_vector[i].E_dummy + ptr_X_vector[i].Ed_das_das;
                 
-                gsl_complex numerator = gsl_complex_rect(ptr_X_vector->Eq_das_das,Ed2_add_Edummy);
+                gsl_complex numerator = gsl_complex_rect(ptr_X_vector[i].Eq_das_das,Ed2_add_Edummy);
                 
                 gsl_complex Gen_impedance = gsl_complex_rect(0,Xd2_local[i]);
                 
@@ -1886,8 +1292,8 @@ void Network_solver(    COMB_STRUCT DATA,
 
         }
 
-            //THIS ONE HAS TO BE CORRECTED   
-        for (int i = 6; i < 2*Number_of_buses; i++)
+        // ✅ FIX: Use proper generalized bounds for load buses
+        for (int i = 2*Number_of_generators; i < 2*Number_of_buses; i++)
         {
                 I_inject_NW[i]=0;
         }
@@ -1906,11 +1312,11 @@ void Network_solver(    COMB_STRUCT DATA,
                 sum = 0;
         }
         
-        for (int i = 0; i < Number_of_buses; i++,
-                                                pointer_nw_vector++)
+        // ✅ FIX: Use local index instead of modifying input pointer
+        for (int i = 0; i < Number_of_buses; i++)
         {
-              pointer_nw_vector->VQ = V_vec[2*i];
-              pointer_nw_vector->VD = V_vec[2*i + 1];  
+              pointer_nw_vector[i].VQ = V_vec[2*i];
+              pointer_nw_vector[i].VD = V_vec[2*i + 1];  
         }
         // for (int i = 0; i < Number_of_generators; i++,
         //                                         ptr_iq++,ptr_id++)

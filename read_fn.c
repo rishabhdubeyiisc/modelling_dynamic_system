@@ -21,7 +21,7 @@ COMB_STRUCT Reader_fn()
    
     
     FILE         * get_data;
-    get_data     = fopen("RISHABH_DATA.txt","r");
+    get_data     = fopen("System_Data/system_data.txt","r");
     
     if(get_data == NULL) 
     {  
@@ -119,7 +119,7 @@ COMB_STRUCT Reader_fn()
 Y_STRUCT Y_BUS(COMB_STRUCT data)
 {   
     FILE       * y_data;
-    y_data     = fopen("Y_BUS.txt","r");
+    y_data     = fopen("System_Data/Y_BUS.txt","r");
     
     if(y_data == NULL) 
     {  
@@ -149,7 +149,7 @@ Y_STRUCT Y_BUS(COMB_STRUCT data)
 Y_STRUCT Y_BUS_AUG(COMB_STRUCT data)
 {   
     FILE       * y_data;
-    y_data     = fopen("Y_BUS.txt","r");
+    y_data     = fopen("System_Data/Y_BUS.txt","r");
     
     if(y_data == NULL) 
     {  
