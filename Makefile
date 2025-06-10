@@ -18,6 +18,13 @@ OBJECTS := $(OBJ_DIR)/main.o $(OBJ_DIR)/read_fn.o $(OBJ_DIR)/invert.o $(OBJ_DIR)
            $(OBJ_DIR)/gen_init.o $(OBJ_DIR)/fault_matrix.o $(OBJ_DIR)/power_calc.o \
            $(OBJ_DIR)/network_solver.o $(OBJ_DIR)/current_calc.o
 
+# Optional logging (set LOG=1 on make command line)
+ifdef LOG
+LOG_FLAG :=
+else
+LOG_FLAG := -DDISABLE_JAC_LOG
+endif
+
 # Compile everything
 build: executable
 
@@ -33,40 +40,40 @@ $(OBJ_DIR):
 
 # Individual compilation rules - all output to build directory
 $(OBJ_DIR)/main.o: src/core/main.c | $(OBJ_DIR)
-	@gcc -g -Wall -c src/core/main.c -o $@
+	@gcc -g -Wall $(LOG_FLAG) -c src/core/main.c -o $@
 
 $(OBJ_DIR)/read_fn.o: src/io/read_fn.c | $(OBJ_DIR)
-	@gcc -g -Wall -c src/io/read_fn.c -o $@
+	@gcc -g -Wall $(LOG_FLAG) -c src/io/read_fn.c -o $@
 
 $(OBJ_DIR)/invert.o: src/math/invert.c | $(OBJ_DIR)
-	@gcc -g -Wall -c src/math/invert.c -o $@
+	@gcc -g -Wall $(LOG_FLAG) -c src/math/invert.c -o $@
 
 $(OBJ_DIR)/simulator.o: src/core/simulator.c | $(OBJ_DIR)
-	@gcc -g -Wall -c src/core/simulator.c -o $@
+	@gcc -g -Wall $(LOG_FLAG) -c src/core/simulator.c -o $@
 
 $(OBJ_DIR)/user_input.o: src/io/user_input.c | $(OBJ_DIR)
-	@gcc -g -Wall -c src/io/user_input.c -o $@
+	@gcc -g -Wall $(LOG_FLAG) -c src/io/user_input.c -o $@
 
 $(OBJ_DIR)/fault_config.o: src/core/fault_config.c | $(OBJ_DIR)
-	@gcc -g -Wall -c src/core/fault_config.c -o $@
+	@gcc -g -Wall $(LOG_FLAG) -c src/core/fault_config.c -o $@
 
 $(OBJ_DIR)/y_bus_utils.o: src/network/y_bus_utils.c | $(OBJ_DIR)
-	@gcc -g -Wall -c src/network/y_bus_utils.c -o $@
+	@gcc -g -Wall $(LOG_FLAG) -c src/network/y_bus_utils.c -o $@
 
 $(OBJ_DIR)/gen_init.o: src/generators/gen_init.c | $(OBJ_DIR)
-	@gcc -g -Wall -c src/generators/gen_init.c -o $@
+	@gcc -g -Wall $(LOG_FLAG) -c src/generators/gen_init.c -o $@
 
 $(OBJ_DIR)/fault_matrix.o: src/network/fault_matrix.c | $(OBJ_DIR)
-	@gcc -g -Wall -c src/network/fault_matrix.c -o $@
+	@gcc -g -Wall $(LOG_FLAG) -c src/network/fault_matrix.c -o $@
 
 $(OBJ_DIR)/power_calc.o: src/generators/power_calc.c | $(OBJ_DIR)
-	@gcc -g -Wall -c src/generators/power_calc.c -o $@
+	@gcc -g -Wall $(LOG_FLAG) -c src/generators/power_calc.c -o $@
 
 $(OBJ_DIR)/network_solver.o: src/network/network_solver.c | $(OBJ_DIR)
-	@gcc -g -Wall -c src/network/network_solver.c -o $@
+	@gcc -g -Wall $(LOG_FLAG) -c src/network/network_solver.c -o $@
 
 $(OBJ_DIR)/current_calc.o: src/generators/current_calc.c | $(OBJ_DIR)
-	@gcc -g -Wall -c src/generators/current_calc.c -o $@
+	@gcc -g -Wall $(LOG_FLAG) -c src/generators/current_calc.c -o $@
 
 # Run simulation + prepare gen0 data
 test: executable
@@ -78,7 +85,7 @@ test: executable
 analysis:
 	@echo "→ Running core analysis scripts"
 	@mkdir -p report_plot
-	@cp sim/gen1.csv PLOT_SAVED_BUS.csv  # Use gen1 for analysis by default #we wont use gen0 as its connected to PV Slack bus
+	@cp sim/gen0.csv PLOT_SAVED_BUS.csv  # Use gen1 for analysis by default #we wont use gen0 as its connected to PV Slack bus
 	@python3 scripts/vref_step_analysis.py
 	@python3 scripts/pm_step_analysis.py
 	@python3 scripts/fault_analysis.py

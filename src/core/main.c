@@ -10,23 +10,7 @@
 // HEADER FILES I CREATED
 
 #include "../../include/api/power_system.h"
-
-/* forward declaration of the new simplified solver */
-void partitioned_solver_sm(
-        NetworkData All_data,
-        InitialConditions   *Initial_state,
-        double     del_t,
-        double     END_TIME,
-        double   **Z_AUG_healthy,
-        double   **Z_AUG_fault,
-        int        fault_enabled,
-        double     fault_start,
-        double     fault_end,
-        int        TARGET_G,
-        double     VREF_STEP_TIME,
-        double     VREF_STEP_DELTA,
-        double     PM_STEP_TIME,
-        double     PM_STEP_DELTA);
+#include "../../include/core/simulator.h"
 
 // constants
 
@@ -36,7 +20,7 @@ int main()
     
     // double del_t        =(0.0002);  // 0.2 ms is step size works very good 
     
-    double del_t = 0.002;  // 2 ms time step
+    double del_t = 0.0002;  // 2 ms time step
     int END_TIME_MINUTES = 10;     // MINUTES  
     int END_TIME = END_TIME_MINUTES * 60; // Convert to seconds
 
@@ -81,6 +65,7 @@ int main()
                       Initial_state_main[0].id_0.dat[0] 
                       );  
     
+    fclose(fptr_wrte);
 
     printf("\nSimulator will write per-generator CSV files to sim/ directory\n");
 
@@ -88,7 +73,8 @@ int main()
     double vref_step_time, vref_step_delta, pm_step_time, pm_step_delta;
     int target_g;
     
-    get_simulation_parameters(&target_g, &vref_step_delta, &pm_step_delta, 
+    get_simulation_parameters(Net_data_main.constants[0].NumberofGens,
+                             &target_g, &vref_step_delta, &pm_step_delta,
                              &vref_step_time, &pm_step_time, Initial_state_main);
 
     // getting Y_BUS
@@ -111,27 +97,63 @@ int main()
 
     /* Debug matrix prints removed for cleaner output */
 
-    /* use streamlined solver (no fault logic) */
-    partitioned_solver_sm(
-        Net_data_main,
-        Initial_state_main,
-        del_t,
-        END_TIME,
-        Z_AUG,
-        Z_AUG_fault,
-        fault_enabled,
-        fault_start,
-        fault_end,
-        target_g,
-        vref_step_time,
-        vref_step_delta,
-        pm_step_time,
-        pm_step_delta
-    );
+    /* Choose solver method */
+    printf("\nSelect solver method:\n");
+    printf("  1) Partitioned solver (fast, production) \n");
+    printf("  2) Jacobian solver   (simultaneous DAE)\n");
+    printf("Choice (1 or 2) [default 1]: ");
+    fflush(stdout);
+    
+    int solver_choice = 1;   /* default → partitioned */
+    if (scanf("%d", &solver_choice) != 1) {
+        solver_choice = 1;   /* user just hit <Enter> */
+    }
+    /* flush the rest of the line to avoid dangling newline before next scanf/fgets */
+    int c; while ((c = getchar()) != '\n' && c != EOF);
+    
+    if (solver_choice != 2) solver_choice = 1;  /* guard */
+    
+    if (solver_choice == 1) {
+        printf("✅ Running partitioned solver...\n");
+        partitioned_solver_sm(
+            Net_data_main,
+            Initial_state_main,
+            del_t,
+            END_TIME,
+            Z_AUG,
+            Z_AUG_fault,
+            fault_enabled,
+            fault_start,
+            fault_end,
+            target_g,
+            vref_step_time,
+            vref_step_delta,
+            pm_step_time,
+            pm_step_delta
+        );
+      printf("\n\nPartitioned app done\n");
+    } else {
+        printf("✅ Running Jacobian solver...\n");
+        jacobian_solver_sm(
+            Net_data_main,
+            Initial_state_main,
+            del_t,
+            END_TIME,
+            Z_AUG,
+            Z_AUG_fault,
+            fault_enabled,
+            fault_start,
+            fault_end,
+            target_g,
+            vref_step_time,
+            vref_step_delta,
+            pm_step_time,
+            pm_step_delta
+        );
+      printf("\n\nJacobian app done\n");
+    }
     //****************************************************************************//    
     //******************************************************************//
-    fclose(fptr_wrte);
-    printf("\n\nPartitioned app done\n");
     return 0;    
 }
 

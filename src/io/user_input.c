@@ -1,12 +1,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include "../../include/io/user_input.h"
 #include "../../include/common/data_types.h"
+#include "../../include/common/common.h"
 
-void get_simulation_parameters(int *target_g, double *vref_step_delta, 
-                              double *pm_step_delta, double *vref_step_time, 
-                              double *pm_step_time, InitialConditions *Initial_state_main) {
+void get_simulation_parameters(int num_gens,
+                              int *target_g,
+                              double *vref_step_delta,
+                              double *pm_step_delta,
+                              double *vref_step_time,
+                              double *pm_step_time,
+                              InitialConditions *Initial_state_main) {
     
     /* Set defaults */
     *vref_step_time = 200.0;  /* default 100 s */
@@ -29,7 +35,14 @@ void get_simulation_parameters(int *target_g, double *vref_step_delta,
      * ------------------------------------------------------------------ */
 
     char line[128] = {0};
-    printf("Enter generator index, Vref Δ, Pm Δ  (⏎ for defaults): ");
+    /* List available generators */
+    printf("\nAvailable generators:\n");
+    for (int g = 0; g < num_gens; ++g) {
+        double vt0 = sqrt(pow(Initial_state_main[g].vq_0.dat[0],2)+pow(Initial_state_main[g].vd_0.dat[0],2));
+        printf("  %d)  Vt=%.4f pu  Pm=%.4f pu  delta=%.2f°\n",
+               g, vt0, Initial_state_main[g].Pm_0.dat[0], Initial_state_main[g].delta_0*180/PI);
+    }
+    printf("Enter generator index 0 to 2, Vref Δ, Pm Δ  (⏎ for defaults): ");
     fflush(stdout);
     if (!fgets(line, sizeof(line), stdin)) {
         line[0] = '\0'; /* treat as empty */
@@ -64,6 +77,12 @@ void get_simulation_parameters(int *target_g, double *vref_step_delta,
 
         if (idx < ntok) vref_local = atof(tokens[idx++]);
         if (idx < ntok) pm_local   = atof(tokens[idx++]);
+    }
+
+    /* Validate generator index */
+    if (gen_local < 0 || gen_local >= num_gens) {
+        fprintf(stderr, "ERROR: Invalid generator index %d. Must be 0–%d.\n", gen_local, num_gens-1);
+        exit(EXIT_FAILURE);
     }
 
     *target_g         = gen_local;
