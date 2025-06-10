@@ -1,5 +1,10 @@
 # Power System Dynamics Simulation
 
+> **Update 2025-06-10 **  
+> * Added compile-time switch `DISABLE_JAC_LOG` (default **on**) – build with `make LOG=1` to enable detailed per-iteration Jacobian logs.  
+> * Jacobian solver now runs with a **fixed timestep** (no adaptive dt).  Any Newton failure terminates the run so spikes cannot be written silently.  
+> * The Jacobian path is still **experimental** – known to converge only for modest disturbances (< 5 %) and small saliency.  Partitioned solver is the recommended production path.
+
 A comprehensive C-based simulation tool for analyzing power system dynamics using differential-algebraic equations (DAE). This project implements both partitioned and simultaneous solution approaches for studying synchronous generator behavior, exciter dynamics, and network stability under various operating conditions and disturbances.
 
 ## 🎯 **Current Status: ✅ PRODUCTION READY**
